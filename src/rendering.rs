@@ -1,25 +1,33 @@
 use std::f64;
 use std::option;
 use image::{DynamicImage, GenericImage, Rgba, Pixel};
-use scene::{Scene, Sphere};
+use scene::{Scene, Sphere, Intersection, Color};
 use point::Point;
 use vector::RayVector;
 
+const BLACK: Color = Color {
+    red: 0.0,
+    green: 0.0,
+    blue: 0.0,
+};
+
 pub fn render(scene: &Scene) -> DynamicImage {
     let mut img = DynamicImage::new_rgb8(scene.width, scene.height);
-    let black = Rgba::from_channels(0, 0, 0, 0);
     for x in 0..scene.width {
         for y in 0..scene.height {
             let prime_ray = Ray::create_prime(x, y, scene);
 
-            if scene.sphere.intersect(&prime_ray) != None {
-                img.put_pixel(x, y, scene.sphere.color.to_rgba());
-            } else {
-                img.put_pixel(x, y, black);
-            }
+            let intersection = scene.trace(&prime_ray);
+            let color = intersection.map(|i| get_color(&i))
+                .unwrap_or(BLACK);
+            img.put_pixel(x, y, color.to_rgba());
         }
     }
     img
+}
+
+fn get_color(intersection: &Intersection) -> Color {
+    intersection.object.color
 }
 
 #[derive(Copy, Clone)]
@@ -50,7 +58,7 @@ impl Ray {
     }
 }
 
-trait Intersectable {
+pub trait Intersectable {
     fn intersect(&self, ray: &Ray) -> Option<f64>;
 }
 
