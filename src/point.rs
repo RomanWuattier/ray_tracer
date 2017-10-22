@@ -1,5 +1,5 @@
 use std::ops::Sub;
-use vector::RayVector;
+use vector::Vector3;
 
 #[derive(Copy, Clone)]
 pub struct Point {
@@ -19,10 +19,10 @@ impl Point {
 }
 
 impl Sub<Point> for Point {
-    type Output = RayVector;
+    type Output = Vector3;
 
-    fn sub(self, other: Point) -> RayVector {
-        RayVector {
+    fn sub(self, other: Point) -> Vector3 {
+        Vector3 {
             x: self.x - other.x,
             y: self.y - other.y,
             z: self.z - other.z,

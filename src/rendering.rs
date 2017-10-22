@@ -3,7 +3,7 @@ use std::option;
 use image::{DynamicImage, GenericImage, Rgba, Pixel};
 use scene::{Scene, Sphere, Intersection, Color};
 use point::Point;
-use vector::RayVector;
+use vector::Vector3;
 
 const BLACK: Color = Color {
     red: 0.0,
@@ -33,7 +33,7 @@ fn get_color(intersection: &Intersection) -> Color {
 #[derive(Copy, Clone)]
 pub struct Ray {
     pub origin: Point,
-    pub direction: RayVector,
+    pub direction: Vector3,
 }
 
 impl Ray {
@@ -48,7 +48,7 @@ impl Ray {
 
         Ray {
             origin: Point::init_zero(),
-            direction: RayVector {
+            direction: Vector3 {
                 x: sensor_x,
                 y: sensor_y,
                 z: -1.0,
@@ -65,7 +65,7 @@ pub trait Intersectable {
 impl Intersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
         // Pythagorean theorem
-        let hypotenuse: RayVector = self.center - ray.origin;
+        let hypotenuse: Vector3 = self.center - ray.origin;
         let adj = hypotenuse.dot(&ray.direction);
         let distance2 = hypotenuse.dot(&hypotenuse) - (adj * adj);
         let radius2 = self.radius * self.radius;
