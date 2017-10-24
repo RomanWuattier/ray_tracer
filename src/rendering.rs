@@ -1,7 +1,7 @@
 use std::f64;
 use std::option;
 use image::{DynamicImage, GenericImage, Rgba, Pixel};
-use scene::{Scene, Sphere, Intersection, Color};
+use scene::{Scene, Sphere, Intersection, Color, Plane, Element};
 use point::Point;
 use vector::Vector3;
 
@@ -27,7 +27,7 @@ pub fn render(scene: &Scene) -> DynamicImage {
 }
 
 fn get_color(intersection: &Intersection) -> Color {
-    intersection.object.color
+    *intersection.object.color()
 }
 
 #[derive(Copy, Clone)]
@@ -62,6 +62,15 @@ pub trait Intersectable {
     fn intersect(&self, ray: &Ray) -> Option<f64>;
 }
 
+impl Intersectable for Element {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        match *self {
+            Element::Sphere(ref s) => s.intersect(ray),
+            Element::Plane(ref p) => p.intersect(ray),
+        }
+    }
+}
+
 impl Intersectable for Sphere {
     fn intersect(&self, ray: &Ray) -> Option<f64> {
         // Pythagorean theorem
@@ -82,5 +91,20 @@ impl Intersectable for Sphere {
         }
 
         Some(distance)
+    }
+}
+
+impl Intersectable for Plane {
+    fn intersect(&self, ray: &Ray) -> Option<f64> {
+        let normal = &self.normal;
+        let denom = normal.dot(&ray.direction);
+        if denom > 1e-6 {
+            let vec = self.point - ray.origin;
+            let distance = vec.dot(&normal) / denom;
+            if distance >= 0.0 {
+                return Some(distance);
+            }
+        }
+        None
     }
 }

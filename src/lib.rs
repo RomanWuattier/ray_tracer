@@ -15,7 +15,7 @@ pub fn render_scene_test() {
         width: 800,
         height: 600,
         fov: 90.0,
-        spheres: vec![],
+        elements: vec![],
     };
 
     let img: DynamicImage = rendering::render(&scene);
